@@ -2,21 +2,44 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Días de Inventario Interactivo - Sucursal Filtrable</title>
+    <title>Días de Inventario - Filtros Superiores</title>
     <style>
+        /* ESTILOS CSS ACTUALIZADOS */
         body { font-family: sans-serif; margin: 20px; background-color: #f4f4f9; }
-        h1 { color: #333; text-align: center; }
-        .dashboard { display: flex; gap: 20px; margin-bottom: 20px; }
-        .filters { flex: 0 0 300px; padding: 15px; border: 1px solid #ccc; background-color: white; border-radius: 8px; }
-        .filter-group { margin-bottom: 15px; }
+        h1 { color: #333; text-align: center; margin-bottom: 20px;}
+        
+        /* Nuevo contenedor para los filtros en la parte superior */
+        .filters-container {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Permite que los filtros se ajusten en pantallas pequeñas */
+        }
+        
+        .filter-group { 
+            flex: 1; /* Distribuye el espacio equitativamente */
+            min-width: 250px; /* Ancho mínimo para cada filtro */
+            margin-bottom: 10px; 
+        }
+        
+        /* EL DASHBOARD AHORA SOLO CONTIENE LA TABLA (la tabla usa todo el ancho disponible) */
+        .dashboard { 
+            width: 100%;
+        }
+        
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
         select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        
+        /* Estilos de la tabla para que use el 100% */
         table { width: 100%; border-collapse: collapse; background-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #007bff; color: white; cursor: pointer; }
         tr:nth-child(even) { background-color: #f2f2f2; }
         tr:hover { background-color: #ddd; }
-        /* Estilo para resaltar la columna clave */
         .days-cell { font-weight: bold; text-align: center; background-color: #d4edda; color: #155724; } 
     </style>
 </head>
@@ -24,51 +47,50 @@
 
     <h1>Análisis de Días de Inventario</h1>
 
-    <div class="dashboard">
-        <div class="filters">
-            <h2>Filtros</h2>
-            <div class="filter-group">
-                <label for="sucursalFilter">Sucursal:</label>
-                <select id="sucursalFilter" multiple size="8">
-                    <option value="">(Todas)</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="proveedorFilter">Proveedor:</label>
-                <select id="proveedorFilter" multiple size="8">
-                    <option value="">(Todos)</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="productoFilter">Producto (Descripción):</label>
-                <select id="productoFilter" multiple size="8">
-                    <option value="">(Todos)</option>
-                </select>
-            </div>
-            <p style="font-size: small;">💡 Usa **Ctrl/Cmd + click** para seleccionar múltiples opciones.</p>
+    <div class="filters-container">
+        <div class="filter-group">
+            <label for="sucursalFilter">Sucursal:</label>
+            <select id="sucursalFilter" multiple size="5">
+                <option value="">(Todas)</option>
+            </select>
         </div>
+        <div class="filter-group">
+            <label for="proveedorFilter">Proveedor:</label>
+            <select id="proveedorFilter" multiple size="5">
+                <option value="">(Todos)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="productoFilter">Producto (Descripción):</label>
+            <select id="productoFilter" multiple size="5">
+                <option value="">(Todos)</option>
+            </select>
+        </div>
+        <p style="font-size: small; width: 100%; margin-top: 10px;">
+            💡 Usa **Ctrl/Cmd + click** para seleccionar múltiples opciones.
+        </p>
+    </div>
 
-        <div style="flex-grow: 1;">
-            <h2>Resultados Filtrados y Ordenados</h2>
-            <table id="inventoryTable">
-                <thead>
-                    <tr>
-                        <th onclick="sortTable(0)">Sucursal</th>
-                        <th onclick="sortTable(1)">Proveedor</th>
-                        <th onclick="sortTable(2)">Producto</th>
-                        <th onclick="sortTable(3)">Existencia</th>
-                        <th onclick="sortTable(4)">Venta Prom. Diaria</th>
-                        <th onclick="sortTable(5)" class="days-cell">Días de Inventario ↓</th>
-                    </tr>
-                </thead>
-                <tbody id="inventoryBody">
-                    </tbody>
-            </table>
-        </div>
+    <div class="dashboard">
+        <h2>Resultados Filtrados y Ordenados</h2>
+        <table id="inventoryTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Sucursal</th>
+                    <th onclick="sortTable(1)">Proveedor</th>
+                    <th onclick="sortTable(2)">Producto</th>
+                    <th onclick="sortTable(3)">Existencia</th>
+                    <th onclick="sortTable(4)">Venta Prom. Diaria</th>
+                    <th onclick="sortTable(5)" class="days-cell">Días de Inventario ↓</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryBody">
+                </tbody>
+        </table>
     </div>
 
     <script>
-        // *** 1. DATOS DE TU ARCHIVO CSV INCORPORADOS AQUÍ (Primeras 15 filas) ***
+        // *** 1. DATOS DE TU ARCHIVO CSV INCORPORADOS AQUÍ (Mismos datos del intento anterior) ***
         const csvData = `numsuc,sucursal,proveedor,DESC_LINEA,articulo,descripcion,costo,fecha,existencia,cantidad_vendida_prom
 40,21 DE MARZO,EDNA ALEJANDRA OROZCO LOZANO,ABARROTES,7.50101E+12,ACEITE DE SOYA SORAYA 800 ML PIEZA,31.99,16/10/2025,10,0.1
 40,21 DE MARZO,EDNA ALEJANDRA OROZCO LOZANO,ABARROTES,7.50101E+12,ACEITE MIXTO NIÑA 800 ML PIEZA,31.14,16/10/2025,8,0.133333333
@@ -11295,13 +11317,13 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
 NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12,CHICHARRON,90,16/10/2025,4,0
 3,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12,TURKE TENDON LOLLIPOP,74,16/10/2025,6,0.033333333
 
-`; // He truncado los datos para que sean manejables.
+`; 
 
         let data = [];
         let currentData = [];
         let sortDirection = 'desc';
 
-        // Función para parsear el CSV y calcular los Días de Inventario
+        // Mismo parser CSV (modificado para manejar comillas en descripciones)
         function parseAndCalculateInventory(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
@@ -11310,7 +11332,6 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
             const result = [];
             
             for (let i = 1; i < lines.length; i++) {
-                // Manejamos comas dentro de campos (como en las descripciones)
                 const values = [];
                 let current = '';
                 let inQuote = false;
@@ -11325,7 +11346,7 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
                         current += char;
                     }
                 }
-                values.push(current.trim()); // El último campo
+                values.push(current.trim());
 
                 if (values.length !== headers.length) continue; 
 
@@ -11334,12 +11355,9 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
                     item[headers[j]] = values[j];
                 }
 
-                // Convertir a números para el cálculo
                 const existencia = parseFloat(item.existencia) || 0;
-                // Usamos la columna real de tu archivo: cantidad_vendida_prom
                 const venta_prom_diaria = parseFloat(item.cantidad_vendida_prom) || 0;
 
-                // Cálculo principal: Días de Inventario = Existencia / Venta Promedio Diaria
                 item.dias_inventario = venta_prom_diaria > 0 ? parseFloat((existencia / venta_prom_diaria).toFixed(2)) : Infinity;
                 
                 result.push(item);
@@ -11350,7 +11368,7 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
 
         // Inicializar Filtros
         function initializeFilters() {
-            // *** CAMBIO CLAVE: Usamos 'sucursal' en lugar de 'nombre_sucursal' ***
+            // Usamos 'sucursal', 'proveedor' y 'descripcion'
             const sucursales = [...new Set(data.map(item => item.sucursal))].sort();
             const proveedores = [...new Set(data.map(item => item.proveedor))].sort();
             const productos = [...new Set(data.map(item => item.descripcion))].sort();
@@ -11383,14 +11401,13 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
             const selectedProductos = getSelectedValues('productoFilter');
 
             currentData = data.filter(item => {
-                // *** CAMBIO CLAVE: item.sucursal ***
                 const matchSucursal = selectedSucursales.length === 0 || selectedSucursales.includes(item.sucursal);
                 const matchProveedor = selectedProveedores.length === 0 || selectedProveedores.includes(item.proveedor);
                 const matchProducto = selectedProductos.length === 0 || selectedProductos.includes(item.descripcion);
                 return matchSucursal && matchProveedor && matchProducto;
             });
 
-            // Re-ordenar por Días de Inventario
+            // Re-ordenar por Días de Inventario (columna 5) de mayor a menor
             sortTable(5, 'desc');
         }
 
@@ -11410,7 +11427,7 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
 
             dataToRender.forEach(item => {
                 const row = tbody.insertRow();
-                row.insertCell(0).textContent = item.sucursal; // Columna sucursal
+                row.insertCell(0).textContent = item.sucursal; 
                 row.insertCell(1).textContent = item.proveedor;
                 row.insertCell(2).textContent = item.descripcion;
                 row.insertCell(3).textContent = (item.existencia) ? parseFloat(item.existencia).toLocaleString('es-MX') : '0';
@@ -11431,7 +11448,7 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
             });
         }
 
-        // Ordenar la Tabla (Sin cambios, solo usa las claves correctas)
+        // Ordenar la Tabla
         function sortTable(n, direction = null) {
             const dir = direction ? direction : (sortDirection === 'asc' ? 'desc' : 'asc');
             
@@ -11442,7 +11459,7 @@ NULL,BALCONES,SUBPRODUCTOS ANIMALES DE MEXICO S.A. DE C.V.,ABARROTES,7.50228E+12
                 let valA = a[key];
                 let valB = b[key];
                 
-                if (n >= 3) { // Columnas numéricas (Existencia, Venta Promedio, Días Inv.)
+                if (n >= 3) { // Columnas numéricas
                     valA = parseFloat(valA) || 0;
                     valB = parseFloat(valB) || 0;
 
